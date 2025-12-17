@@ -5,6 +5,10 @@ import pandas as pd
 import time
 import ssl
 
+# [핵심] Streamlit 쓰레드 경고 메시지 차단 (기능엔 영향 없음)
+logging.getLogger('streamlit.runtime.scriptrunner_utils.script_run_context').setLevel(logging.ERROR)
+logging.getLogger('streamlit.runtime.scriptrunner.script_run_context').setLevel(logging.ERROR)
+
 # --- 페이지 설정 ---
 st.set_page_config(page_title="Mory Controller", layout="wide", page_icon="🐶")
 
