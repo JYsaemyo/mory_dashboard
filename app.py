@@ -4,6 +4,7 @@ import pymysql
 import pandas as pd
 import time
 import ssl
+import logging
 
 # [핵심] Streamlit 쓰레드 경고 메시지 차단 (기능엔 영향 없음)
 logging.getLogger('streamlit.runtime.scriptrunner_utils.script_run_context').setLevel(logging.ERROR)
