@@ -112,14 +112,21 @@ elif page == "📊 퀴즈 성적 분석 (DB)":
     if st.button("🔄 데이터 새로고침"):
         st.rerun()
 
-    # 데이터 가져오기 로직
+    # 데이터 가져오기 로직 (경고 해결 버전)
     def fetch_logs():
         try:
             conn = get_db_connection()
-            query = "SELECT * FROM server_quiz_logs ORDER BY id DESC LIMIT 500"
-            df = pd.read_sql(query, conn)
+            # 1. 커서를 이용해서 직접 쿼리 실행
+            with conn.cursor() as cursor:
+                query = "SELECT * FROM server_quiz_logs ORDER BY id DESC LIMIT 500"
+                cursor.execute(query)
+                result = cursor.fetchall() # 데이터를 리스트(딕셔너리) 형태로 다 가져옴
+            
             conn.close()
-            return df
+            
+            # 2. 가져온 리스트를 DataFrame으로 변환 (이러면 경고가 안 뜹니다)
+            return pd.DataFrame(result)
+            
         except Exception as e:
             st.error(f"DB 연결 실패: {e}")
             return pd.DataFrame()
