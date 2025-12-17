@@ -33,19 +33,48 @@ except Exception as e:
 # 공통 함수 및 설정
 # ==========================================
 
-# 1. MQTT 클라이언트 초기화 (세션에 저장하여 연결 유지)
+# ==========================================
+# 1. MQTT 클라이언트 초기화 (오류 수정 버전)
+# ==========================================
 if 'mqtt_client' not in st.session_state:
-    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, "Streamlit_Controller")
+    
+    # [수정됨] 인자 5개로 맞춤 (Version 2 필수)
+    def on_connect(client, userdata, flags, reason_code, properties):
+        if reason_code == 0:
+            print("✅ [디버그] MQTT 브로커 연결 성공!")
+            st.session_state['mqtt_connected'] = True
+        else:
+            print(f"❌ [디버그] 연결 실패. 코드: {reason_code}")
+            st.session_state['mqtt_connected'] = False
+
+    # [★여기가 문제였습니다★] 인자를 5개로 늘려야 합니다.
+    def on_publish(client, userdata, mid, reason_code, properties):
+        print(f"📡 [디버그] 메시지 전송 성공 (Message ID: {mid})")
+
+    # 클라이언트 설정
+    client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, "Streamlit_Controller_Fix")
     client.username_pw_set(HIVEMQ_USERNAME, HIVEMQ_PASSWORD)
     client.tls_set(cert_reqs=ssl.CERT_NONE, tls_version=ssl.PROTOCOL_TLS)
     
+    # 콜백 연결
+    client.on_connect = on_connect
+    client.on_publish = on_publish
+
+    # 접속 시도
     try:
         client.connect(HIVEMQ_BROKER, HIVEMQ_PORT, 60)
-        client.loop_start() # 백그라운드 루프 시작
+        client.loop_start() 
         st.session_state['mqtt_client'] = client
-        st.session_state['mqtt_status'] = "Connected"
+        st.session_state['mqtt_status'] = "Connecting..."
+        time.sleep(1) # 연결 대기
     except Exception as e:
-        st.session_state['mqtt_status'] = f"Error: {e}"
+        st.error(f"MQTT 접속 에러: {e}")
+
+# 연결 상태 표시
+if st.session_state.get('mqtt_connected'):
+    st.sidebar.success("MQTT: 연결됨 (Ready)")
+else:
+    st.sidebar.warning("MQTT: 연결 중...")
 
 # 2. DB 연결 함수
 def get_db_connection():
