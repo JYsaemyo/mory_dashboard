@@ -141,13 +141,13 @@ elif page == "📊 퀴즈 성적 분석 (DB)":
     if not raw_df.empty:
         # 5문제 = 1회차 계산
         df_sorted = raw_df.sort_values(by='id', ascending=True).reset_index(drop=True)
-        df_sorted['round_num'] = (df_sorted.index // 2) + 1
+        df_sorted['round_num'] = (df_sorted.index // 5) + 1
         
         round_stats = df_sorted.groupby('round_num')['is_correct'].sum().reset_index()
         round_stats.columns = ['회차', '점수 (5점 만점)']
         chart_data = round_stats.set_index('회차')
 
-        st.subheader("📈 회차별 점수 (2문제 단위)")
+        st.subheader("📈 회차별 점수 (5문제 단위)")
         st.bar_chart(chart_data, color="#3B82F6")
         
         st.divider()
