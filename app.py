@@ -147,7 +147,7 @@ elif page == "📊 퀴즈 성적 분석 (DB)":
         round_stats.columns = ['회차', '점수 (5점 만점)']
         chart_data = round_stats.set_index('회차')
 
-        st.subheader("📈 회차별 점수 (5문제 단위)")
+        st.subheader("📈 회차별 점수 (2문제 단위)")
         st.bar_chart(chart_data, color="#3B82F6")
         
         st.divider()
